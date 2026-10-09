@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="bg_dark">#0B0F19</color>
+    <color name="court_bar">#1E293B</color>
+    
+    <!-- Player 1 Theme (Biru / Cyan) -->
+    <color name="p1_bg">#0F2438</color>
+    <color name="p1_accent">#00B0FF</color>
+    <color name="p1_score">#38BDF8</color>
+    
+    <!-- Player 2 Theme (Merah / Crimson) -->
+    <color name="p2_bg">#34141E</color>
+    <color name="p2_accent">#FF3366</color>
+    <color name="p2_score">#FB7185</color>
+    
+    <!-- Status / UI elements -->
+    <color name="serve_active">#00E676</color>
+    <color name="serve_inactive">#334155</color>
+    <color name="match_point">#FBBF24</color>
+    
+    <color name="text_white">#F8FAFC</color>
+    <color name="text_secondary">#94A3B8</color>
+    <color name="btn_control">#1E293B</color>
+    <color name="btn_control_text">#E2E8F0</color>
+</resources>

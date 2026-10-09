@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Badminton Score</string>
+    <string name="player_1_default">Pemain 1</string>
+    <string name="player_2_default">Pemain 2</string>
+    <string name="game_label">GAME 1</string>
+    <string name="swap_label">TUKAR SISI</string>
+    <string name="reset_label">RESET</string>
+    <string name="undo_label">UNDO</string>
+    <string name="service_label">SERVIS</string>
+</resources>
