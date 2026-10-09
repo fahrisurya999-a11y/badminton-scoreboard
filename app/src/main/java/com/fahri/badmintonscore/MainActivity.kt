@@ -10,45 +10,70 @@ import android.view.View
 import android.view.WindowManager
 import android.widget.Button
 import android.widget.EditText
+import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 
 class MainActivity : AppCompatActivity() {
 
-    private var player1Name = "Pemain 1"
-    private var player2Name = "Pemain 2"
+    // Mode: true = 2 Orang per skor (Ganda), false = 1 Orang per skor (Tunggal)
+    private var isDoublesMode = true
 
+    // Nama Pemain Tim 1
+    private var p1_1_Name = "Pemain 1A"
+    private var p1_2_Name = "Pemain 1B"
+
+    // Nama Pemain Tim 2
+    private var p2_1_Name = "Pemain 2A"
+    private var p2_2_Name = "Pemain 2B"
+
+    // Skor 0 - 30
     private var player1Score = 0
     private var player2Score = 0
 
+    // Game Menang
     private var player1Games = 0
     private var player2Games = 0
-
     private var currentGame = 1
-    private var isPlayer1Serving = true
+
+    // Server aktif: 1=P1A, 2=P1B, 3=P2A, 4=P2B
+    private var activeServer = 1
 
     // Views
     private lateinit var tvMatchStatus: TextView
-    private lateinit var tvPlayer1Name: TextView
-    private lateinit var tvPlayer2Name: TextView
-    private lateinit var tvPlayer1Score: TextView
-    private lateinit var tvPlayer2Score: TextView
-    private lateinit var tvP1Games: TextView
-    private lateinit var tvP2Games: TextView
-    private lateinit var tvServeP1: TextView
-    private lateinit var tvServeP2: TextView
+    private lateinit var btnToggleMode: Button
     private lateinit var btnSwap: Button
     private lateinit var btnReset: Button
+
+    // Tim 1 Views
     private lateinit var cardPlayer1: View
-    private lateinit var cardPlayer2: View
+    private lateinit var rowP1_1: LinearLayout
+    private lateinit var rowP1_2: LinearLayout
+    private lateinit var tvP1_1_Name: TextView
+    private lateinit var tvP1_2_Name: TextView
+    private lateinit var tvP1_1_Serve: TextView
+    private lateinit var tvP1_2_Serve: TextView
+    private lateinit var tvPlayer1Score: TextView
     private lateinit var btnP1Plus: Button
     private lateinit var btnP1Minus: Button
+    private lateinit var tvP1Games: TextView
+
+    // Tim 2 Views
+    private lateinit var cardPlayer2: View
+    private lateinit var rowP2_1: LinearLayout
+    private lateinit var rowP2_2: LinearLayout
+    private lateinit var tvP2_1_Name: TextView
+    private lateinit var tvP2_2_Name: TextView
+    private lateinit var tvP2_1_Serve: TextView
+    private lateinit var tvP2_2_Serve: TextView
+    private lateinit var tvPlayer2Score: TextView
     private lateinit var btnP2Plus: Button
     private lateinit var btnP2Minus: Button
+    private lateinit var tvP2Games: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // Pastikan layar selalu menyala saat pertandingan
+        // Layar selalu menyala selama pertandingan
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
 
         setContentView(R.layout.activity_main)
@@ -60,68 +85,93 @@ class MainActivity : AppCompatActivity() {
 
     private fun initViews() {
         tvMatchStatus = findViewById(R.id.tvMatchStatus)
-        tvPlayer1Name = findViewById(R.id.tvPlayer1Name)
-        tvPlayer2Name = findViewById(R.id.tvPlayer2Name)
-        tvPlayer1Score = findViewById(R.id.tvPlayer1Score)
-        tvPlayer2Score = findViewById(R.id.tvPlayer2Score)
-        tvP1Games = findViewById(R.id.tvP1Games)
-        tvP2Games = findViewById(R.id.tvP2Games)
-        tvServeP1 = findViewById(R.id.tvServeP1)
-        tvServeP2 = findViewById(R.id.tvServeP2)
+        btnToggleMode = findViewById(R.id.btnToggleMode)
         btnSwap = findViewById(R.id.btnSwap)
         btnReset = findViewById(R.id.btnReset)
+
+        // Tim 1
         cardPlayer1 = findViewById(R.id.cardPlayer1)
-        cardPlayer2 = findViewById(R.id.cardPlayer2)
+        rowP1_1 = findViewById(R.id.rowP1_1)
+        rowP1_2 = findViewById(R.id.rowP1_2)
+        tvP1_1_Name = findViewById(R.id.tvP1_1_Name)
+        tvP1_2_Name = findViewById(R.id.tvP1_2_Name)
+        tvP1_1_Serve = findViewById(R.id.tvP1_1_Serve)
+        tvP1_2_Serve = findViewById(R.id.tvP1_2_Serve)
+        tvPlayer1Score = findViewById(R.id.tvPlayer1Score)
         btnP1Plus = findViewById(R.id.btnP1Plus)
         btnP1Minus = findViewById(R.id.btnP1Minus)
+        tvP1Games = findViewById(R.id.tvP1Games)
+
+        // Tim 2
+        cardPlayer2 = findViewById(R.id.cardPlayer2)
+        rowP2_1 = findViewById(R.id.rowP2_1)
+        rowP2_2 = findViewById(R.id.rowP2_2)
+        tvP2_1_Name = findViewById(R.id.tvP2_1_Name)
+        tvP2_2_Name = findViewById(R.id.tvP2_2_Name)
+        tvP2_1_Serve = findViewById(R.id.tvP2_1_Serve)
+        tvP2_2_Serve = findViewById(R.id.tvP2_2_Serve)
+        tvPlayer2Score = findViewById(R.id.tvPlayer2Score)
         btnP2Plus = findViewById(R.id.btnP2Plus)
         btnP2Minus = findViewById(R.id.btnP2Minus)
+        tvP2Games = findViewById(R.id.tvP2Games)
     }
 
     private fun setupListeners() {
-        // Ganti Nama Pemain 1
-        tvPlayer1Name.setOnClickListener { showEditNameDialog(1) }
-        // Ganti Nama Pemain 2
-        tvPlayer2Name.setOnClickListener { showEditNameDialog(2) }
+        // Toggle Mode 1 Orang vs 2 Orang per Tim
+        btnToggleMode.setOnClickListener {
+            isDoublesMode = !isDoublesMode
+            if (!isDoublesMode && (activeServer == 2 || activeServer == 4)) {
+                activeServer = if (activeServer == 2) 1 else 3
+            }
+            updateUI()
+        }
 
-        // Tambah Skor Pemain 1 (Tap Card atau Tombol Plus)
+        // Edit Nama masing-masing orang
+        tvP1_1_Name.setOnClickListener { showEditNameDialog("Pemain 1A (Orang 1)", p1_1_Name) { p1_1_Name = it } }
+        tvP1_2_Name.setOnClickListener { showEditNameDialog("Pemain 1B (Orang 2)", p1_2_Name) { p1_2_Name = it } }
+        tvP2_1_Name.setOnClickListener { showEditNameDialog("Pemain 2A (Orang 1)", p2_1_Name) { p2_1_Name = it } }
+        tvP2_2_Name.setOnClickListener { showEditNameDialog("Pemain 2B (Orang 2)", p2_2_Name) { p2_2_Name = it } }
+
+        // Pindah Servis Manual per Orang
+        tvP1_1_Serve.setOnClickListener { activeServer = 1; updateUI() }
+        tvP1_2_Serve.setOnClickListener { activeServer = 2; updateUI() }
+        tvP2_1_Serve.setOnClickListener { activeServer = 3; updateUI() }
+        tvP2_2_Serve.setOnClickListener { activeServer = 4; updateUI() }
+
+        // Tambah / Kurang Skor Tim 1
         cardPlayer1.setOnClickListener { addScore(1) }
         btnP1Plus.setOnClickListener { addScore(1) }
         btnP1Minus.setOnClickListener { minusScore(1) }
 
-        // Tambah Skor Pemain 2 (Tap Card atau Tombol Plus)
+        // Tambah / Kurang Skor Tim 2
         cardPlayer2.setOnClickListener { addScore(2) }
         btnP2Plus.setOnClickListener { addScore(2) }
         btnP2Minus.setOnClickListener { minusScore(2) }
 
-        // Toggle Servis Manual
-        tvServeP1.setOnClickListener {
-            isPlayer1Serving = true
-            updateUI()
-        }
-        tvServeP2.setOnClickListener {
-            isPlayer1Serving = false
-            updateUI()
-        }
-
-        // Tombol Tukar Sisi / Lapangan
+        // Tukar Sisi Lapangan
         btnSwap.setOnClickListener { swapSides() }
 
-        // Tombol Reset
+        // Reset
         btnReset.setOnClickListener { showResetOptionsDialog() }
     }
 
-    private fun addScore(player: Int) {
+    private fun addScore(team: Int) {
         vibrate()
-        if (player == 1) {
+        if (team == 1) {
             if (player1Score < 30) {
                 player1Score++
-                isPlayer1Serving = true
+                // Jika servis sebelumnya di Tim 2, pindah ke Tim 1
+                if (activeServer == 3 || activeServer == 4) {
+                    activeServer = 1
+                }
             }
         } else {
             if (player2Score < 30) {
                 player2Score++
-                isPlayer1Serving = false
+                // Jika servis sebelumnya di Tim 1, pindah ke Tim 2
+                if (activeServer == 1 || activeServer == 2) {
+                    activeServer = 3
+                }
             }
         }
 
@@ -129,9 +179,9 @@ class MainActivity : AppCompatActivity() {
         checkGameWinner()
     }
 
-    private fun minusScore(player: Int) {
+    private fun minusScore(team: Int) {
         vibrate()
-        if (player == 1) {
+        if (team == 1) {
             if (player1Score > 0) player1Score--
         } else {
             if (player2Score > 0) player2Score--
@@ -140,70 +190,66 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun checkGameWinner() {
-        // Aturan Badminton BWF:
-        // Menang jika >= 21 poin dan selisih >= 2 poin, atau siapa yang duluan 30 poin.
-        val p1Won = (player1Score >= 21 && player1Score - player2Score >= 2) || (player1Score == 30)
-        val p2Won = (player2Score >= 21 && player2Score - player1Score >= 2) || (player2Score == 30)
-
-        if (p1Won) {
-            showWinnerDialog(player1Name, player1Score, player2Score, 1)
-        } else if (p2Won) {
-            showWinnerDialog(player2Name, player2Score, player1Score, 2)
+        // Murni target 30 poin (tidak berhenti di 21)
+        if (player1Score >= 30) {
+            val teamName = if (isDoublesMode) "$p1_1_Name & $p1_2_Name" else p1_1_Name
+            showWinnerDialog(teamName, 1)
+        } else if (player2Score >= 30) {
+            val teamName = if (isDoublesMode) "$p2_1_Name & $p2_2_Name" else p2_1_Name
+            showWinnerDialog(teamName, 2)
         }
     }
 
-    private fun showWinnerDialog(winnerName: String, winScore: Int, loseScore: Int, winnerId: Int) {
-        val builder = AlertDialog.Builder(this)
-        builder.setTitle("🏆 GAME $currentGame SELESAI!")
-        builder.setMessage("$winnerName memenangkan Game $currentGame dengan skor $winScore - $loseScore!\n\nLanjut ke game berikutnya?")
-        builder.setCancelable(false)
-        builder.setPositiveButton("Lanjut Game Berikutnya") { _, _ ->
-            if (winnerId == 1) player1Games++ else player2Games++
-            currentGame++
-            player1Score = 0
-            player2Score = 0
-            // Otomatis tukar sisi untuk game berikutnya
-            swapSides(prompt = false)
-        }
-        builder.setNegativeButton("Tetap di Game Ini") { dialog, _ ->
-            dialog.dismiss()
-        }
-        builder.show()
+    private fun showWinnerDialog(winnerTeam: String, winnerId: Int) {
+        AlertDialog.Builder(this)
+            .setTitle("🏆 30 POIN TERCAPAI!")
+            .setMessage("$winnerTeam memenangkan Game $currentGame dengan skor 30!\n\nLanjut ke Game berikutnya?")
+            .setCancelable(false)
+            .setPositiveButton("Lanjut Game Berikutnya") { _, _ ->
+                if (winnerId == 1) player1Games++ else player2Games++
+                currentGame++
+                player1Score = 0
+                player2Score = 0
+                swapSides()
+            }
+            .setNegativeButton("Tetap di Game Ini") { dialog, _ ->
+                dialog.dismiss()
+            }
+            .show()
     }
 
-    private fun swapSides(prompt: Boolean = true) {
+    private fun swapSides() {
         vibrate()
-        // Tukar posisi Nama, Skor, dan Game
-        val tempName = player1Name
-        player1Name = player2Name
-        player2Name = tempName
+        // Tukar Tim 1 dan Tim 2
+        val tmp1A = p1_1_Name; p1_1_Name = p2_1_Name; p2_1_Name = tmp1A
+        val tmp1B = p1_2_Name; p1_2_Name = p2_2_Name; p2_2_Name = tmp1B
 
-        val tempScore = player1Score
-        player1Score = player2Score
-        player2Score = tempScore
+        val tmpScore = player1Score; player1Score = player2Score; player2Score = tmpScore
+        val tmpGames = player1Games; player1Games = player2Games; player2Games = tmpGames
 
-        val tempGames = player1Games
-        player1Games = player2Games
-        player2Games = tempGames
-
-        isPlayer1Serving = !isPlayer1Serving
+        activeServer = when (activeServer) {
+            1 -> 3
+            2 -> 4
+            3 -> 1
+            4 -> 2
+            else -> 1
+        }
         updateUI()
     }
 
-    private fun showEditNameDialog(player: Int) {
+    private fun showEditNameDialog(title: String, currentName: String, onSave: (String) -> Unit) {
         val input = EditText(this)
         input.setSingleLine(true)
-        val currentName = if (player == 1) player1Name else player2Name
         input.setText(currentName)
         input.setSelection(currentName.length)
 
         AlertDialog.Builder(this)
-            .setTitle("Ganti Nama Pemain $player")
+            .setTitle("Ganti Nama $title")
             .setView(input)
             .setPositiveButton("Simpan") { _, _ ->
                 val newName = input.text.toString().trim()
                 if (newName.isNotEmpty()) {
-                    if (player == 1) player1Name = newName else player2Name = newName
+                    onSave(newName)
                     updateUI()
                 }
             }
@@ -237,33 +283,40 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun updateUI() {
-        tvPlayer1Name.text = player1Name
-        tvPlayer2Name.text = player2Name
+        // Mode Button Label
+        btnToggleMode.text = if (isDoublesMode) "👥 2 ORANG" else "👤 1 ORANG"
 
+        // Visibility Baris Orang 2
+        rowP1_2.visibility = if (isDoublesMode) View.VISIBLE else View.GONE
+        rowP2_2.visibility = if (isDoublesMode) View.VISIBLE else View.GONE
+
+        // Set Nama
+        tvP1_1_Name.text = if (isDoublesMode) "1. $p1_1_Name" else p1_1_Name
+        tvP1_2_Name.text = "2. $p1_2_Name"
+
+        tvP2_1_Name.text = if (isDoublesMode) "1. $p2_1_Name" else p2_1_Name
+        tvP2_2_Name.text = "2. $p2_2_Name"
+
+        // Skor 0 - 30
         tvPlayer1Score.text = player1Score.toString()
         tvPlayer2Score.text = player2Score.toString()
 
+        // Game Won
         tvP1Games.text = "Game Menang: $player1Games"
         tvP2Games.text = "Game Menang: $player2Games"
 
-        // Status Servis
-        if (isPlayer1Serving) {
-            tvServeP1.visibility = View.VISIBLE
-            tvServeP2.visibility = View.INVISIBLE
-        } else {
-            tvServeP1.visibility = View.INVISIBLE
-            tvServeP2.visibility = View.VISIBLE
-        }
+        // Indikator Servis per Orang
+        tvP1_1_Serve.visibility = if (activeServer == 1) View.VISIBLE else View.INVISIBLE
+        tvP1_2_Serve.visibility = if (isDoublesMode && activeServer == 2) View.VISIBLE else View.INVISIBLE
 
-        // Status Pertandingan (Game Point / Deuce / Setting)
-        val isDeuce = player1Score >= 20 && player2Score >= 20
-        val isMatchPoint = (player1Score >= 20 && player1Score > player2Score) || (player2Score >= 20 && player2Score > player1Score)
+        tvP2_1_Serve.visibility = if (activeServer == 3) View.VISIBLE else View.INVISIBLE
+        tvP2_2_Serve.visibility = if (isDoublesMode && activeServer == 4) View.VISIBLE else View.INVISIBLE
 
+        // Status Pertandingan (Target 30)
         val statusText = when {
-            player1Score == 29 && player2Score == 29 -> "SUDDEN DEATH (30 POIN MENANG!)"
-            isDeuce -> "DEUCE (Selisih 2 Poin, Max 30)"
-            isMatchPoint -> "GAME POINT!"
-            else -> "GAME $currentGame (Sets: $player1Games - $player2Games)"
+            player1Score == 29 || player2Score == 29 -> "MATCH POINT MENUJU 30!"
+            player1Score >= 25 || player2Score >= 25 -> "GAME KRUSIAL (MENUJU 30)"
+            else -> "GAME $currentGame (TARGET 30 POIN)"
         }
         tvMatchStatus.text = statusText
     }
