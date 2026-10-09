@@ -106,9 +106,7 @@
         android:orientation="vertical"
         android:background="@drawable/bg_player_1"
         android:padding="8dp"
-        android:gravity="center"
-        android:clickable="true"
-        android:focusable="true">
+        android:gravity="center">
 
         <!-- Team 1 Header & Players -->
         <LinearLayout
@@ -123,7 +121,9 @@
                 android:layout_height="wrap_content"
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
-                android:padding="2dp">
+                android:padding="3dp"
+                android:clickable="true"
+                android:focusable="true">
 
                 <TextView
                     android:id="@+id/tvP1_1_Name"
@@ -136,6 +136,15 @@
                     android:textStyle="bold"
                     android:maxLines="1"
                     android:ellipsize="end" />
+
+                <TextView
+                    android:id="@+id/btnEditP1_1"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:gravity="center"
+                    android:text="✏️"
+                    android:textSize="12sp"
+                    android:padding="2dp" />
 
                 <TextView
                     android:id="@+id/tvP1_1_ServeTag"
@@ -159,7 +168,9 @@
                 android:layout_height="wrap_content"
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
-                android:padding="2dp">
+                android:padding="3dp"
+                android:clickable="true"
+                android:focusable="true">
 
                 <TextView
                     android:id="@+id/tvP1_2_Name"
@@ -172,6 +183,15 @@
                     android:textStyle="bold"
                     android:maxLines="1"
                     android:ellipsize="end" />
+
+                <TextView
+                    android:id="@+id/btnEditP1_2"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:gravity="center"
+                    android:text="✏️"
+                    android:textSize="12sp"
+                    android:padding="2dp" />
 
                 <TextView
                     android:id="@+id/tvP1_2_ServeTag"
@@ -199,7 +219,9 @@
             android:textColor="@color/text_white"
             android:textSize="82sp"
             android:textStyle="bold"
-            android:gravity="center" />
+            android:gravity="center"
+            android:clickable="true"
+            android:focusable="true" />
 
         <!-- Control Buttons -->
         <LinearLayout
@@ -253,9 +275,7 @@
         android:orientation="vertical"
         android:background="@drawable/bg_player_2"
         android:padding="8dp"
-        android:gravity="center"
-        android:clickable="true"
-        android:focusable="true">
+        android:gravity="center">
 
         <!-- Team 2 Header & Players -->
         <LinearLayout
@@ -270,7 +290,9 @@
                 android:layout_height="wrap_content"
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
-                android:padding="2dp">
+                android:padding="3dp"
+                android:clickable="true"
+                android:focusable="true">
 
                 <TextView
                     android:id="@+id/tvP2_1_Name"
@@ -283,6 +305,15 @@
                     android:textStyle="bold"
                     android:maxLines="1"
                     android:ellipsize="end" />
+
+                <TextView
+                    android:id="@+id/btnEditP2_1"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:gravity="center"
+                    android:text="✏️"
+                    android:textSize="12sp"
+                    android:padding="2dp" />
 
                 <TextView
                     android:id="@+id/tvP2_1_ServeTag"
@@ -307,7 +338,9 @@
                 android:layout_height="wrap_content"
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
-                android:padding="2dp">
+                android:padding="3dp"
+                android:clickable="true"
+                android:focusable="true">
 
                 <TextView
                     android:id="@+id/tvP2_2_Name"
@@ -320,6 +353,15 @@
                     android:textStyle="bold"
                     android:maxLines="1"
                     android:ellipsize="end" />
+
+                <TextView
+                    android:id="@+id/btnEditP2_2"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:gravity="center"
+                    android:text="✏️"
+                    android:textSize="12sp"
+                    android:padding="2dp" />
 
                 <TextView
                     android:id="@+id/tvP2_2_ServeTag"
@@ -347,7 +389,9 @@
             android:textColor="@color/text_white"
             android:textSize="82sp"
             android:textStyle="bold"
-            android:gravity="center" />
+            android:gravity="center"
+            android:clickable="true"
+            android:focusable="true" />
 
         <!-- Control Buttons -->
         <LinearLayout

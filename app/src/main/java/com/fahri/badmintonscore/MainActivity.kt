@@ -48,7 +48,7 @@ class MainActivity : AppCompatActivity() {
     // 4 = Tim 2 (Orang Ke-2)
     private var activeServer = 1
 
-    // Views
+    // Views Top Bar
     private lateinit var btnTargetScore: Button
     private lateinit var btnToggleMode: Button
     private lateinit var btnSwap: Button
@@ -57,11 +57,12 @@ class MainActivity : AppCompatActivity() {
     private lateinit var btnPindahBola: Button
 
     // Tim 1 Views
-    private lateinit var cardPlayer1: View
     private lateinit var rowP1_1: LinearLayout
     private lateinit var rowP1_2: LinearLayout
     private lateinit var tvP1_1_Name: TextView
     private lateinit var tvP1_2_Name: TextView
+    private lateinit var btnEditP1_1: TextView
+    private lateinit var btnEditP1_2: TextView
     private lateinit var tvP1_1_ServeTag: TextView
     private lateinit var tvP1_2_ServeTag: TextView
     private lateinit var tvPlayer1Score: TextView
@@ -70,11 +71,12 @@ class MainActivity : AppCompatActivity() {
     private lateinit var tvP1Games: TextView
 
     // Tim 2 Views
-    private lateinit var cardPlayer2: View
     private lateinit var rowP2_1: LinearLayout
     private lateinit var rowP2_2: LinearLayout
     private lateinit var tvP2_1_Name: TextView
     private lateinit var tvP2_2_Name: TextView
+    private lateinit var btnEditP2_1: TextView
+    private lateinit var btnEditP2_2: TextView
     private lateinit var tvP2_1_ServeTag: TextView
     private lateinit var tvP2_2_ServeTag: TextView
     private lateinit var tvPlayer2Score: TextView
@@ -103,11 +105,12 @@ class MainActivity : AppCompatActivity() {
         btnPindahBola = findViewById(R.id.btnPindahBola)
 
         // Tim 1
-        cardPlayer1 = findViewById(R.id.cardPlayer1)
         rowP1_1 = findViewById(R.id.rowP1_1)
         rowP1_2 = findViewById(R.id.rowP1_2)
         tvP1_1_Name = findViewById(R.id.tvP1_1_Name)
         tvP1_2_Name = findViewById(R.id.tvP1_2_Name)
+        btnEditP1_1 = findViewById(R.id.btnEditP1_1)
+        btnEditP1_2 = findViewById(R.id.btnEditP1_2)
         tvP1_1_ServeTag = findViewById(R.id.tvP1_1_ServeTag)
         tvP1_2_ServeTag = findViewById(R.id.tvP1_2_ServeTag)
         tvPlayer1Score = findViewById(R.id.tvPlayer1Score)
@@ -116,11 +119,12 @@ class MainActivity : AppCompatActivity() {
         tvP1Games = findViewById(R.id.tvP1Games)
 
         // Tim 2
-        cardPlayer2 = findViewById(R.id.cardPlayer2)
         rowP2_1 = findViewById(R.id.rowP2_1)
         rowP2_2 = findViewById(R.id.rowP2_2)
         tvP2_1_Name = findViewById(R.id.tvP2_1_Name)
         tvP2_2_Name = findViewById(R.id.tvP2_2_Name)
+        btnEditP2_1 = findViewById(R.id.btnEditP2_1)
+        btnEditP2_2 = findViewById(R.id.btnEditP2_2)
         tvP2_1_ServeTag = findViewById(R.id.tvP2_1_ServeTag)
         tvP2_2_ServeTag = findViewById(R.id.tvP2_2_ServeTag)
         tvPlayer2Score = findViewById(R.id.tvPlayer2Score)
@@ -146,30 +150,76 @@ class MainActivity : AppCompatActivity() {
             updateUI()
         }
 
-        // Tombol Wasit: Pindah Bola / Pindah Orang
+        // Tombol Wasit: Pindah Bola / Pindah Orang (HANYA GANTI SERVIS, TIDAK MENAMBAH POIN!)
         btnPindahBola.setOnClickListener {
             nextServerCycle()
         }
 
-        // Ganti Nama Pemain Mandiri (Tap Teks Nama)
-        tvP1_1_Name.setOnClickListener { showEditNameDialog("Pemain 1A (Orang 1)", p1_1_Name) { p1_1_Name = it } }
-        tvP1_2_Name.setOnClickListener { showEditNameDialog("Pemain 1B (Orang 2)", p1_2_Name) { p1_2_Name = it } }
-        tvP2_1_Name.setOnClickListener { showEditNameDialog("Pemain 2A (Orang 1)", p2_1_Name) { p2_1_Name = it } }
-        tvP2_2_Name.setOnClickListener { showEditNameDialog("Pemain 2B (Orang 2)", p2_2_Name) { p2_2_Name = it } }
+        // =========================================================================
+        // KLIK ORANG 1 / ORANG 2 -> HANYA PINDAH SERVIS (TIDAK MENAMBAH POIN SAMA SEKALI!)
+        // =========================================================================
+        val setServerP1_1 = {
+            vibrate()
+            activeServer = 1
+            Toast.makeText(this, "Servis: Tim 1 (Orang Ke-1)", Toast.LENGTH_SHORT).show()
+            updateUI()
+        }
+        val setServerP1_2 = {
+            vibrate()
+            activeServer = 2
+            Toast.makeText(this, "Servis: Tim 1 (Orang Ke-2)", Toast.LENGTH_SHORT).show()
+            updateUI()
+        }
+        val setServerP2_1 = {
+            vibrate()
+            activeServer = 3
+            Toast.makeText(this, "Servis: Tim 2 (Orang Ke-1)", Toast.LENGTH_SHORT).show()
+            updateUI()
+        }
+        val setServerP2_2 = {
+            vibrate()
+            activeServer = 4
+            Toast.makeText(this, "Servis: Tim 2 (Orang Ke-2)", Toast.LENGTH_SHORT).show()
+            updateUI()
+        }
 
-        // Pindah Servis Manual per Orang (Tap Label Tag Servis)
-        tvP1_1_ServeTag.setOnClickListener { activeServer = 1; updateUI() }
-        tvP1_2_ServeTag.setOnClickListener { activeServer = 2; updateUI() }
-        tvP2_1_ServeTag.setOnClickListener { activeServer = 3; updateUI() }
-        tvP2_2_ServeTag.setOnClickListener { activeServer = 4; updateUI() }
+        rowP1_1.setOnClickListener { setServerP1_1() }
+        tvP1_1_Name.setOnClickListener { setServerP1_1() }
+        tvP1_1_ServeTag.setOnClickListener { setServerP1_1() }
 
-        // Tambah / Kurang Skor Tim 1
-        cardPlayer1.setOnClickListener { addScore(1) }
+        rowP1_2.setOnClickListener { setServerP1_2() }
+        tvP1_2_Name.setOnClickListener { setServerP1_2() }
+        tvP1_2_ServeTag.setOnClickListener { setServerP1_2() }
+
+        rowP2_1.setOnClickListener { setServerP2_1() }
+        tvP2_1_Name.setOnClickListener { setServerP2_1() }
+        tvP2_1_ServeTag.setOnClickListener { setServerP2_1() }
+
+        rowP2_2.setOnClickListener { setServerP2_2() }
+        tvP2_2_Name.setOnClickListener { setServerP2_2() }
+        tvP2_2_ServeTag.setOnClickListener { setServerP2_2() }
+
+        // =========================================================================
+        // GANTI NAMA: Tombol Pensil (✏️) atau Tahan (Long Click) pada Nama
+        // =========================================================================
+        btnEditP1_1.setOnClickListener { showEditNameDialog("Pemain 1A (Orang 1)", p1_1_Name) { p1_1_Name = it } }
+        btnEditP1_2.setOnClickListener { showEditNameDialog("Pemain 1B (Orang 2)", p1_2_Name) { p1_2_Name = it } }
+        btnEditP2_1.setOnClickListener { showEditNameDialog("Pemain 2A (Orang 1)", p2_1_Name) { p2_1_Name = it } }
+        btnEditP2_2.setOnClickListener { showEditNameDialog("Pemain 2B (Orang 2)", p2_2_Name) { p2_2_Name = it } }
+
+        tvP1_1_Name.setOnLongClickListener { showEditNameDialog("Pemain 1A (Orang 1)", p1_1_Name) { p1_1_Name = it }; true }
+        tvP1_2_Name.setOnLongClickListener { showEditNameDialog("Pemain 1B (Orang 2)", p1_2_Name) { p1_2_Name = it }; true }
+        tvP2_1_Name.setOnLongClickListener { showEditNameDialog("Pemain 2A (Orang 1)", p2_1_Name) { p2_1_Name = it }; true }
+        tvP2_2_Name.setOnLongClickListener { showEditNameDialog("Pemain 2B (Orang 2)", p2_2_Name) { p2_2_Name = it }; true }
+
+        // =========================================================================
+        // PENAMBAHAN SKOR: HANYA DARI TOMBOL +1 ATAU TAP ANGKA SKOR BESAR
+        // =========================================================================
+        tvPlayer1Score.setOnClickListener { addScore(1) }
         btnP1Plus.setOnClickListener { addScore(1) }
         btnP1Minus.setOnClickListener { minusScore(1) }
 
-        // Tambah / Kurang Skor Tim 2
-        cardPlayer2.setOnClickListener { addScore(2) }
+        tvPlayer2Score.setOnClickListener { addScore(2) }
         btnP2Plus.setOnClickListener { addScore(2) }
         btnP2Minus.setOnClickListener { minusScore(2) }
 
@@ -181,6 +231,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     // Rotasi Bulutangkis: Orang Ke-1 -> Orang Ke-2 -> Pindah Bola!
+    // (MURNI GANTI SERVIS, TIDAK MENAMBAH SKOR)
     private fun nextServerCycle() {
         vibrate()
         if (isDoublesMode) {
@@ -215,18 +266,10 @@ class MainActivity : AppCompatActivity() {
         if (team == 1) {
             if (player1Score < 30) {
                 player1Score++
-                // Jika servis sebelumnya di Tim 2, otomatis oper hak servis ke Tim 1
-                if (activeServer == 3 || activeServer == 4) {
-                    activeServer = 1
-                }
             }
         } else {
             if (player2Score < 30) {
                 player2Score++
-                // Jika servis sebelumnya di Tim 1, otomatis oper hak servis ke Tim 2
-                if (activeServer == 1 || activeServer == 2) {
-                    activeServer = 3
-                }
             }
         }
 
@@ -393,7 +436,7 @@ class MainActivity : AppCompatActivity() {
         tvP1Games.text = "Game: $player1Games"
         tvP2Games.text = "Game: $player2Games"
 
-        // Tag Servis di Kartu
+        // Tag Servis di Kartu (High Contrast Green jika aktif)
         tvP1_1_ServeTag.visibility = if (activeServer == 1) View.VISIBLE else View.INVISIBLE
         tvP1_2_ServeTag.visibility = if (isDoublesMode && activeServer == 2) View.VISIBLE else View.INVISIBLE
 
