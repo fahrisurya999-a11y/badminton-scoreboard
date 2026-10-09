@@ -4,61 +4,97 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:background="@color/bg_dark"
-    android:padding="10dp">
+    android:padding="8dp">
 
-    <!-- Top Status & Control Bar -->
+    <!-- Top Action & Setting Bar -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center_vertical"
-        android:padding="6dp">
+        android:padding="4dp">
 
-        <TextView
-            android:id="@+id/tvMatchStatus"
+        <Button
+            android:id="@+id/btnTargetScore"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="36dp"
             android:layout_weight="1"
-            android:text="TARGET: 30 POIN"
-            android:textColor="@color/match_point"
-            android:textSize="15sp"
-            android:textStyle="bold" />
+            android:text="🎯 TARGET: 30"
+            android:textSize="11sp"
+            android:textStyle="bold"
+            android:background="@drawable/bg_btn_pill"
+            android:textColor="@color/match_point" />
 
         <Button
             android:id="@+id/btnToggleMode"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="36dp"
+            android:layout_weight="1"
+            android:layout_marginStart="4dp"
             android:text="👥 2 ORANG"
             android:textSize="11sp"
             android:textStyle="bold"
             android:background="@drawable/bg_btn_pill"
-            android:textColor="#38BDF8"
-            android:paddingStart="10dp"
-            android:paddingEnd="10dp" />
+            android:textColor="#38BDF8" />
 
         <Button
             android:id="@+id/btnSwap"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="36dp"
-            android:layout_marginStart="6dp"
+            android:layout_weight="1"
+            android:layout_marginStart="4dp"
             android:text="🔄 TUKAR"
             android:textSize="11sp"
             android:background="@drawable/bg_btn_pill"
-            android:textColor="@color/btn_control_text"
-            android:paddingStart="10dp"
-            android:paddingEnd="10dp" />
+            android:textColor="@color/btn_control_text" />
 
         <Button
             android:id="@+id/btnReset"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="36dp"
-            android:layout_marginStart="6dp"
+            android:layout_weight="0.9"
+            android:layout_marginStart="4dp"
             android:text="↺ RESET"
             android:textSize="11sp"
             android:background="@drawable/bg_btn_pill"
-            android:textColor="#EF4444"
-            android:paddingStart="10dp"
-            android:paddingEnd="10dp" />
+            android:textColor="#EF4444" />
+    </LinearLayout>
+
+    <!-- Wasit Banner: Status Servis & Tombol Pindah Bola -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:background="#162235"
+        android:paddingStart="10dp"
+        android:paddingEnd="6dp"
+        android:paddingTop="5dp"
+        android:paddingBottom="5dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginBottom="4dp">
+
+        <TextView
+            android:id="@+id/tvServeBanner"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="🎾 SERVIS: TIM 1 (ORANG KE-1)"
+            android:textColor="@color/serve_active"
+            android:textSize="13sp"
+            android:textStyle="bold" />
+
+        <Button
+            android:id="@+id/btnPindahBola"
+            android:layout_width="wrap_content"
+            android:layout_height="36dp"
+            android:text="👉 PINDAH BOLA"
+            android:textSize="11sp"
+            android:textStyle="bold"
+            android:background="@drawable/bg_btn_pill"
+            android:textColor="#FBBF24"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp" />
     </LinearLayout>
 
     <!-- Team 1 Card (Blue) -->
@@ -69,18 +105,18 @@
         android:layout_weight="1"
         android:orientation="vertical"
         android:background="@drawable/bg_player_1"
-        android:padding="10dp"
+        android:padding="8dp"
         android:gravity="center"
         android:clickable="true"
         android:focusable="true">
 
-        <!-- Player Names in Team 1 -->
+        <!-- Team 1 Header & Players -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <!-- Orang 1 -->
+            <!-- Orang Ke-1 -->
             <LinearLayout
                 android:id="@+id/rowP1_1"
                 android:layout_width="match_parent"
@@ -94,18 +130,18 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Pemain 1A"
+                    android:text="1. Pemain 1A"
                     android:textColor="@color/p1_accent"
-                    android:textSize="16sp"
+                    android:textSize="15sp"
                     android:textStyle="bold"
                     android:maxLines="1"
                     android:ellipsize="end" />
 
                 <TextView
-                    android:id="@+id/tvP1_1_Serve"
+                    android:id="@+id/tvP1_1_ServeTag"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="🎾 SERVIS"
+                    android:text="🎾 ORANG KE-1"
                     android:textSize="11sp"
                     android:textStyle="bold"
                     android:textColor="@color/serve_active"
@@ -116,7 +152,7 @@
                     android:paddingBottom="2dp" />
             </LinearLayout>
 
-            <!-- Orang 2 (Dalam Satu Tim/Skor) -->
+            <!-- Orang Ke-2 -->
             <LinearLayout
                 android:id="@+id/rowP1_2"
                 android:layout_width="match_parent"
@@ -130,18 +166,18 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Pemain 1B"
+                    android:text="2. Pemain 1B"
                     android:textColor="#7DD3FC"
-                    android:textSize="15sp"
+                    android:textSize="14sp"
                     android:textStyle="bold"
                     android:maxLines="1"
                     android:ellipsize="end" />
 
                 <TextView
-                    android:id="@+id/tvP1_2_Serve"
+                    android:id="@+id/tvP1_2_ServeTag"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="🎾 SERVIS"
+                    android:text="🎾 ORANG KE-2"
                     android:textSize="11sp"
                     android:textStyle="bold"
                     android:textColor="@color/serve_active"
@@ -154,14 +190,14 @@
             </LinearLayout>
         </LinearLayout>
 
-        <!-- Big Score 0-30 -->
+        <!-- Big Score Display -->
         <TextView
             android:id="@+id/tvPlayer1Score"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="0"
             android:textColor="@color/text_white"
-            android:textSize="80sp"
+            android:textSize="82sp"
             android:textStyle="bold"
             android:gravity="center" />
 
@@ -175,7 +211,7 @@
             <Button
                 android:id="@+id/btnP1Minus"
                 android:layout_width="54dp"
-                android:layout_height="44dp"
+                android:layout_height="42dp"
                 android:text="-"
                 android:textSize="22sp"
                 android:textStyle="bold"
@@ -184,8 +220,8 @@
 
             <Button
                 android:id="@+id/btnP1Plus"
-                android:layout_width="80dp"
-                android:layout_height="44dp"
+                android:layout_width="84dp"
+                android:layout_height="42dp"
                 android:layout_marginStart="16dp"
                 android:text="+1"
                 android:textSize="18sp"
@@ -206,7 +242,7 @@
 
     <View
         android:layout_width="match_parent"
-        android:layout_height="8dp" />
+        android:layout_height="6dp" />
 
     <!-- Team 2 Card (Red) -->
     <LinearLayout
@@ -216,18 +252,18 @@
         android:layout_weight="1"
         android:orientation="vertical"
         android:background="@drawable/bg_player_2"
-        android:padding="10dp"
+        android:padding="8dp"
         android:gravity="center"
         android:clickable="true"
         android:focusable="true">
 
-        <!-- Player Names in Team 2 -->
+        <!-- Team 2 Header & Players -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <!-- Orang 1 -->
+            <!-- Orang Ke-1 -->
             <LinearLayout
                 android:id="@+id/rowP2_1"
                 android:layout_width="match_parent"
@@ -241,18 +277,18 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Pemain 2A"
+                    android:text="1. Pemain 2A"
                     android:textColor="@color/p2_accent"
-                    android:textSize="16sp"
+                    android:textSize="15sp"
                     android:textStyle="bold"
                     android:maxLines="1"
                     android:ellipsize="end" />
 
                 <TextView
-                    android:id="@+id/tvP2_1_Serve"
+                    android:id="@+id/tvP2_1_ServeTag"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="🎾 SERVIS"
+                    android:text="🎾 ORANG KE-1"
                     android:textSize="11sp"
                     android:textStyle="bold"
                     android:textColor="@color/serve_active"
@@ -264,7 +300,7 @@
                     android:visibility="invisible" />
             </LinearLayout>
 
-            <!-- Orang 2 (Dalam Satu Tim/Skor) -->
+            <!-- Orang Ke-2 -->
             <LinearLayout
                 android:id="@+id/rowP2_2"
                 android:layout_width="match_parent"
@@ -278,18 +314,18 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Pemain 2B"
+                    android:text="2. Pemain 2B"
                     android:textColor="#FDA4AF"
-                    android:textSize="15sp"
+                    android:textSize="14sp"
                     android:textStyle="bold"
                     android:maxLines="1"
                     android:ellipsize="end" />
 
                 <TextView
-                    android:id="@+id/tvP2_2_Serve"
+                    android:id="@+id/tvP2_2_ServeTag"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="🎾 SERVIS"
+                    android:text="🎾 ORANG KE-2"
                     android:textSize="11sp"
                     android:textStyle="bold"
                     android:textColor="@color/serve_active"
@@ -302,14 +338,14 @@
             </LinearLayout>
         </LinearLayout>
 
-        <!-- Big Score 0-30 -->
+        <!-- Big Score Display -->
         <TextView
             android:id="@+id/tvPlayer2Score"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="0"
             android:textColor="@color/text_white"
-            android:textSize="80sp"
+            android:textSize="82sp"
             android:textStyle="bold"
             android:gravity="center" />
 
@@ -323,7 +359,7 @@
             <Button
                 android:id="@+id/btnP2Minus"
                 android:layout_width="54dp"
-                android:layout_height="44dp"
+                android:layout_height="42dp"
                 android:text="-"
                 android:textSize="22sp"
                 android:textStyle="bold"
@@ -332,8 +368,8 @@
 
             <Button
                 android:id="@+id/btnP2Plus"
-                android:layout_width="80dp"
-                android:layout_height="44dp"
+                android:layout_width="84dp"
+                android:layout_height="42dp"
                 android:layout_marginStart="16dp"
                 android:text="+1"
                 android:textSize="18sp"

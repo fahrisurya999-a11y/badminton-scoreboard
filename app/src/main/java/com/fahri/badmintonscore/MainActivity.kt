@@ -12,18 +12,22 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 
 class MainActivity : AppCompatActivity() {
 
-    // Mode: true = 2 Orang per skor (Ganda), false = 1 Orang per skor (Tunggal)
+    // Target Skor Pilihan: 30 atau 21
+    private var targetScore = 30
+
+    // Mode: true = Ganda (2 Orang per Skor), false = Tunggal (1 Orang)
     private var isDoublesMode = true
 
-    // Nama Pemain Tim 1
+    // Nama Pemain Tim 1 (Biru)
     private var p1_1_Name = "Pemain 1A"
     private var p1_2_Name = "Pemain 1B"
 
-    // Nama Pemain Tim 2
+    // Nama Pemain Tim 2 (Merah)
     private var p2_1_Name = "Pemain 2A"
     private var p2_2_Name = "Pemain 2B"
 
@@ -31,19 +35,26 @@ class MainActivity : AppCompatActivity() {
     private var player1Score = 0
     private var player2Score = 0
 
-    // Game Menang
+    // Status Game & Sets
     private var player1Games = 0
     private var player2Games = 0
     private var currentGame = 1
+    private var hasNotifiedInterval = false
 
-    // Server aktif: 1=P1A, 2=P1B, 3=P2A, 4=P2B
+    // Server Aktif:
+    // 1 = Tim 1 (Orang Ke-1)
+    // 2 = Tim 1 (Orang Ke-2)
+    // 3 = Tim 2 (Orang Ke-1)
+    // 4 = Tim 2 (Orang Ke-2)
     private var activeServer = 1
 
     // Views
-    private lateinit var tvMatchStatus: TextView
+    private lateinit var btnTargetScore: Button
     private lateinit var btnToggleMode: Button
     private lateinit var btnSwap: Button
     private lateinit var btnReset: Button
+    private lateinit var tvServeBanner: TextView
+    private lateinit var btnPindahBola: Button
 
     // Tim 1 Views
     private lateinit var cardPlayer1: View
@@ -51,8 +62,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var rowP1_2: LinearLayout
     private lateinit var tvP1_1_Name: TextView
     private lateinit var tvP1_2_Name: TextView
-    private lateinit var tvP1_1_Serve: TextView
-    private lateinit var tvP1_2_Serve: TextView
+    private lateinit var tvP1_1_ServeTag: TextView
+    private lateinit var tvP1_2_ServeTag: TextView
     private lateinit var tvPlayer1Score: TextView
     private lateinit var btnP1Plus: Button
     private lateinit var btnP1Minus: Button
@@ -64,8 +75,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var rowP2_2: LinearLayout
     private lateinit var tvP2_1_Name: TextView
     private lateinit var tvP2_2_Name: TextView
-    private lateinit var tvP2_1_Serve: TextView
-    private lateinit var tvP2_2_Serve: TextView
+    private lateinit var tvP2_1_ServeTag: TextView
+    private lateinit var tvP2_2_ServeTag: TextView
     private lateinit var tvPlayer2Score: TextView
     private lateinit var btnP2Plus: Button
     private lateinit var btnP2Minus: Button
@@ -73,7 +84,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // Layar selalu menyala selama pertandingan
+        // Layar selalu menyala terus saat pertandingan berlangsung
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
 
         setContentView(R.layout.activity_main)
@@ -84,10 +95,12 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun initViews() {
-        tvMatchStatus = findViewById(R.id.tvMatchStatus)
+        btnTargetScore = findViewById(R.id.btnTargetScore)
         btnToggleMode = findViewById(R.id.btnToggleMode)
         btnSwap = findViewById(R.id.btnSwap)
         btnReset = findViewById(R.id.btnReset)
+        tvServeBanner = findViewById(R.id.tvServeBanner)
+        btnPindahBola = findViewById(R.id.btnPindahBola)
 
         // Tim 1
         cardPlayer1 = findViewById(R.id.cardPlayer1)
@@ -95,8 +108,8 @@ class MainActivity : AppCompatActivity() {
         rowP1_2 = findViewById(R.id.rowP1_2)
         tvP1_1_Name = findViewById(R.id.tvP1_1_Name)
         tvP1_2_Name = findViewById(R.id.tvP1_2_Name)
-        tvP1_1_Serve = findViewById(R.id.tvP1_1_Serve)
-        tvP1_2_Serve = findViewById(R.id.tvP1_2_Serve)
+        tvP1_1_ServeTag = findViewById(R.id.tvP1_1_ServeTag)
+        tvP1_2_ServeTag = findViewById(R.id.tvP1_2_ServeTag)
         tvPlayer1Score = findViewById(R.id.tvPlayer1Score)
         btnP1Plus = findViewById(R.id.btnP1Plus)
         btnP1Minus = findViewById(R.id.btnP1Minus)
@@ -108,8 +121,8 @@ class MainActivity : AppCompatActivity() {
         rowP2_2 = findViewById(R.id.rowP2_2)
         tvP2_1_Name = findViewById(R.id.tvP2_1_Name)
         tvP2_2_Name = findViewById(R.id.tvP2_2_Name)
-        tvP2_1_Serve = findViewById(R.id.tvP2_1_Serve)
-        tvP2_2_Serve = findViewById(R.id.tvP2_2_Serve)
+        tvP2_1_ServeTag = findViewById(R.id.tvP2_1_ServeTag)
+        tvP2_2_ServeTag = findViewById(R.id.tvP2_2_ServeTag)
         tvPlayer2Score = findViewById(R.id.tvPlayer2Score)
         btnP2Plus = findViewById(R.id.btnP2Plus)
         btnP2Minus = findViewById(R.id.btnP2Minus)
@@ -117,7 +130,14 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupListeners() {
-        // Toggle Mode 1 Orang vs 2 Orang per Tim
+        // Toggle Target Skor 30 vs 21
+        btnTargetScore.setOnClickListener {
+            targetScore = if (targetScore == 30) 21 else 30
+            Toast.makeText(this, "Target Skor Diubah ke: $targetScore Poin", Toast.LENGTH_SHORT).show()
+            updateUI()
+        }
+
+        // Toggle Mode 1 Orang vs 2 Orang per Skor
         btnToggleMode.setOnClickListener {
             isDoublesMode = !isDoublesMode
             if (!isDoublesMode && (activeServer == 2 || activeServer == 4)) {
@@ -126,17 +146,22 @@ class MainActivity : AppCompatActivity() {
             updateUI()
         }
 
-        // Edit Nama masing-masing orang
+        // Tombol Wasit: Pindah Bola / Pindah Orang
+        btnPindahBola.setOnClickListener {
+            nextServerCycle()
+        }
+
+        // Ganti Nama Pemain Mandiri (Tap Teks Nama)
         tvP1_1_Name.setOnClickListener { showEditNameDialog("Pemain 1A (Orang 1)", p1_1_Name) { p1_1_Name = it } }
         tvP1_2_Name.setOnClickListener { showEditNameDialog("Pemain 1B (Orang 2)", p1_2_Name) { p1_2_Name = it } }
         tvP2_1_Name.setOnClickListener { showEditNameDialog("Pemain 2A (Orang 1)", p2_1_Name) { p2_1_Name = it } }
         tvP2_2_Name.setOnClickListener { showEditNameDialog("Pemain 2B (Orang 2)", p2_2_Name) { p2_2_Name = it } }
 
-        // Pindah Servis Manual per Orang
-        tvP1_1_Serve.setOnClickListener { activeServer = 1; updateUI() }
-        tvP1_2_Serve.setOnClickListener { activeServer = 2; updateUI() }
-        tvP2_1_Serve.setOnClickListener { activeServer = 3; updateUI() }
-        tvP2_2_Serve.setOnClickListener { activeServer = 4; updateUI() }
+        // Pindah Servis Manual per Orang (Tap Label Tag Servis)
+        tvP1_1_ServeTag.setOnClickListener { activeServer = 1; updateUI() }
+        tvP1_2_ServeTag.setOnClickListener { activeServer = 2; updateUI() }
+        tvP2_1_ServeTag.setOnClickListener { activeServer = 3; updateUI() }
+        tvP2_2_ServeTag.setOnClickListener { activeServer = 4; updateUI() }
 
         // Tambah / Kurang Skor Tim 1
         cardPlayer1.setOnClickListener { addScore(1) }
@@ -155,12 +180,42 @@ class MainActivity : AppCompatActivity() {
         btnReset.setOnClickListener { showResetOptionsDialog() }
     }
 
+    // Rotasi Bulutangkis: Orang Ke-1 -> Orang Ke-2 -> Pindah Bola!
+    private fun nextServerCycle() {
+        vibrate()
+        if (isDoublesMode) {
+            when (activeServer) {
+                1 -> {
+                    activeServer = 2
+                    Toast.makeText(this, "Orang Kedua Servis!", Toast.LENGTH_SHORT).show()
+                }
+                2 -> {
+                    activeServer = 3
+                    Toast.makeText(this, "PINDAH BOLA ke Tim 2 (Orang Ke-1)!", Toast.LENGTH_SHORT).show()
+                }
+                3 -> {
+                    activeServer = 4
+                    Toast.makeText(this, "Orang Kedua Servis!", Toast.LENGTH_SHORT).show()
+                }
+                4 -> {
+                    activeServer = 1
+                    Toast.makeText(this, "PINDAH BOLA ke Tim 1 (Orang Ke-1)!", Toast.LENGTH_SHORT).show()
+                }
+            }
+        } else {
+            // Mode Tunggal: Langsung Pindah Bola
+            activeServer = if (activeServer == 1 || activeServer == 2) 3 else 1
+            Toast.makeText(this, "PINDAH BOLA!", Toast.LENGTH_SHORT).show()
+        }
+        updateUI()
+    }
+
     private fun addScore(team: Int) {
         vibrate()
         if (team == 1) {
             if (player1Score < 30) {
                 player1Score++
-                // Jika servis sebelumnya di Tim 2, pindah ke Tim 1
+                // Jika servis sebelumnya di Tim 2, otomatis oper hak servis ke Tim 1
                 if (activeServer == 3 || activeServer == 4) {
                     activeServer = 1
                 }
@@ -168,7 +223,7 @@ class MainActivity : AppCompatActivity() {
         } else {
             if (player2Score < 30) {
                 player2Score++
-                // Jika servis sebelumnya di Tim 1, pindah ke Tim 2
+                // Jika servis sebelumnya di Tim 1, otomatis oper hak servis ke Tim 2
                 if (activeServer == 1 || activeServer == 2) {
                     activeServer = 3
                 }
@@ -176,6 +231,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         updateUI()
+        checkInterval()
         checkGameWinner()
     }
 
@@ -189,27 +245,53 @@ class MainActivity : AppCompatActivity() {
         updateUI()
     }
 
-    private fun checkGameWinner() {
-        // Murni target 30 poin (tidak berhenti di 21)
-        if (player1Score >= 30) {
-            val teamName = if (isDoublesMode) "$p1_1_Name & $p1_2_Name" else p1_1_Name
-            showWinnerDialog(teamName, 1)
-        } else if (player2Score >= 30) {
-            val teamName = if (isDoublesMode) "$p2_1_Name & $p2_2_Name" else p2_1_Name
-            showWinnerDialog(teamName, 2)
+    private fun checkInterval() {
+        val intervalPoint = if (targetScore == 30) 15 else 11
+        if (!hasNotifiedInterval && (player1Score == intervalPoint || player2Score == intervalPoint)) {
+            hasNotifiedInterval = true
+            AlertDialog.Builder(this)
+                .setTitle("🏸 INTERVAL $intervalPoint POIN!")
+                .setMessage("Poin telah mencapai $intervalPoint. Saatnya istirahat sejenak / tukar sisi lapangan.")
+                .setPositiveButton("Tukar Lapangan Sekarang") { _, _ -> swapSides() }
+                .setNegativeButton("Lanjut Main", null)
+                .show()
         }
     }
 
-    private fun showWinnerDialog(winnerTeam: String, winnerId: Int) {
+    private fun checkGameWinner() {
+        var isP1Won = false
+        var isP2Won = false
+
+        if (targetScore == 30) {
+            // Sistem Murni 30 Poin
+            isP1Won = (player1Score >= 30)
+            isP2Won = (player2Score >= 30)
+        } else {
+            // Sistem 21 Poin (Deuce selisih 2 angka, max 30)
+            isP1Won = (player1Score >= 21 && player1Score - player2Score >= 2) || (player1Score == 30)
+            isP2Won = (player2Score >= 21 && player2Score - player1Score >= 2) || (player2Score == 30)
+        }
+
+        if (isP1Won) {
+            val teamName = if (isDoublesMode) "$p1_1_Name & $p1_2_Name" else p1_1_Name
+            showWinnerDialog(teamName, player1Score, player2Score, 1)
+        } else if (isP2Won) {
+            val teamName = if (isDoublesMode) "$p2_1_Name & $p2_2_Name" else p2_1_Name
+            showWinnerDialog(teamName, player2Score, player1Score, 2)
+        }
+    }
+
+    private fun showWinnerDialog(winnerTeam: String, winScore: Int, loseScore: Int, winnerId: Int) {
         AlertDialog.Builder(this)
-            .setTitle("🏆 30 POIN TERCAPAI!")
-            .setMessage("$winnerTeam memenangkan Game $currentGame dengan skor 30!\n\nLanjut ke Game berikutnya?")
+            .setTitle("🏆 GAME $currentGame SELESAI!")
+            .setMessage("$winnerTeam memenangkan Game $currentGame dengan skor $winScore - $loseScore!\n\nLanjut ke game berikutnya?")
             .setCancelable(false)
             .setPositiveButton("Lanjut Game Berikutnya") { _, _ ->
                 if (winnerId == 1) player1Games++ else player2Games++
                 currentGame++
                 player1Score = 0
                 player2Score = 0
+                hasNotifiedInterval = false
                 swapSides()
             }
             .setNegativeButton("Tetap di Game Ini") { dialog, _ ->
@@ -266,6 +348,7 @@ class MainActivity : AppCompatActivity() {
                     0 -> {
                         player1Score = 0
                         player2Score = 0
+                        hasNotifiedInterval = false
                         updateUI()
                     }
                     1 -> {
@@ -274,6 +357,8 @@ class MainActivity : AppCompatActivity() {
                         player1Games = 0
                         player2Games = 0
                         currentGame = 1
+                        hasNotifiedInterval = false
+                        activeServer = 1
                         updateUI()
                     }
                 }
@@ -283,14 +368,17 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun updateUI() {
+        // Target Button Label
+        btnTargetScore.text = "🎯 TARGET: $targetScore"
+
         // Mode Button Label
         btnToggleMode.text = if (isDoublesMode) "👥 2 ORANG" else "👤 1 ORANG"
 
-        // Visibility Baris Orang 2
+        // Visibility Baris Orang Ke-2
         rowP1_2.visibility = if (isDoublesMode) View.VISIBLE else View.GONE
         rowP2_2.visibility = if (isDoublesMode) View.VISIBLE else View.GONE
 
-        // Set Nama
+        // Set Nama Pemain
         tvP1_1_Name.text = if (isDoublesMode) "1. $p1_1_Name" else p1_1_Name
         tvP1_2_Name.text = "2. $p1_2_Name"
 
@@ -302,23 +390,25 @@ class MainActivity : AppCompatActivity() {
         tvPlayer2Score.text = player2Score.toString()
 
         // Game Won
-        tvP1Games.text = "Game Menang: $player1Games"
-        tvP2Games.text = "Game Menang: $player2Games"
+        tvP1Games.text = "Game: $player1Games"
+        tvP2Games.text = "Game: $player2Games"
 
-        // Indikator Servis per Orang
-        tvP1_1_Serve.visibility = if (activeServer == 1) View.VISIBLE else View.INVISIBLE
-        tvP1_2_Serve.visibility = if (isDoublesMode && activeServer == 2) View.VISIBLE else View.INVISIBLE
+        // Tag Servis di Kartu
+        tvP1_1_ServeTag.visibility = if (activeServer == 1) View.VISIBLE else View.INVISIBLE
+        tvP1_2_ServeTag.visibility = if (isDoublesMode && activeServer == 2) View.VISIBLE else View.INVISIBLE
 
-        tvP2_1_Serve.visibility = if (activeServer == 3) View.VISIBLE else View.INVISIBLE
-        tvP2_2_Serve.visibility = if (isDoublesMode && activeServer == 4) View.VISIBLE else View.INVISIBLE
+        tvP2_1_ServeTag.visibility = if (activeServer == 3) View.VISIBLE else View.INVISIBLE
+        tvP2_2_ServeTag.visibility = if (isDoublesMode && activeServer == 4) View.VISIBLE else View.INVISIBLE
 
-        // Status Pertandingan (Target 30)
-        val statusText = when {
-            player1Score == 29 || player2Score == 29 -> "MATCH POINT MENUJU 30!"
-            player1Score >= 25 || player2Score >= 25 -> "GAME KRUSIAL (MENUJU 30)"
-            else -> "GAME $currentGame (TARGET 30 POIN)"
+        // Banner Status Wasit
+        val bannerText = when (activeServer) {
+            1 -> if (isDoublesMode) "🎾 SERVIS: TIM 1 (ORANG KE-1)" else "🎾 SERVIS: TIM 1"
+            2 -> "🎾 SERVIS: TIM 1 (ORANG KE-2)"
+            3 -> if (isDoublesMode) "🎾 SERVIS: TIM 2 (ORANG KE-1)" else "🎾 SERVIS: TIM 2"
+            4 -> "🎾 SERVIS: TIM 2 (ORANG KE-2)"
+            else -> "🎾 SERVIS"
         }
-        tvMatchStatus.text = statusText
+        tvServeBanner.text = bannerText
     }
 
     private fun vibrate() {
